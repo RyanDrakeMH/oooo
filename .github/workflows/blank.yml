@@ -1,0 +1,31 @@
+name: Build WinUI 3 App
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: # Te permite iniciar la compilación manualmente desde la web de GitHub
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Descargar Código
+      uses: actions/checkout@v4
+
+    - name: Instalar .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restaurar dependencias
+      run: dotnet restore WinUI3App/WinUI3App.csproj
+
+    - name: Compilar y Publicar Aplicación
+      run: dotnet publish WinUI3App/WinUI3App.csproj --configuration Release --runtime win-x64 --self-contained true -o ./publish
+
+    - name: Subir ejecutable compilado
+      uses: actions/upload-artifact@v4
+      with:
+        name: WinUI-App-Ejecutable
+        path: ./publish
